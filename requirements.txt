@@ -1,0 +1,4 @@
+dnspython==2.7.0
+prettytable==3.14.0
+pymongo==4.11
+wcwidth==0.2.13

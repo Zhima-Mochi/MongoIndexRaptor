@@ -1,0 +1,21 @@
+[
+    {
+        "name": "test_query_1",
+        "database": "my_database",
+        "collection": "users",
+        "query": {
+            "name": "John Doe",
+            "age": {
+                "$gte": 30
+            }
+        },
+        "hints": [
+            {
+                "name": 1
+            },
+            {
+                "age": 1
+            }
+        ]
+    }
+]

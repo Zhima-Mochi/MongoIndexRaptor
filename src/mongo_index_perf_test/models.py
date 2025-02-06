@@ -17,6 +17,7 @@ class TestResult:
     percentile_99: float = 0.0
     avg_docs_examined: float = 0.0
     avg_keys_examined: float = 0.0
+    avg_docs_returned: float = 0.0
     error: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:

@@ -34,7 +34,7 @@ class IndexPerformanceTester:
             )
 
             # Testing phase
-            times, docs_examined, keys_examined = self._perform_testing(
+            times, docs_examined, keys_examined, docs_returned = self._perform_testing(
                 database, collection, query, index_hint, iterations, sample_interval
             )
 
@@ -47,6 +47,7 @@ class IndexPerformanceTester:
                 times=times,
                 docs_examined=docs_examined,
                 keys_examined=keys_examined,
+                docs_returned=docs_returned,
             )
 
         except errors.PyMongoError as e:
@@ -111,18 +112,21 @@ class IndexPerformanceTester:
         index_hint: Dict[str, int],
         iterations: int,
         sample_interval: int,
-    ) -> Tuple[List[float], List[int], List[int]]:
+    ) -> Tuple[List[float], List[int], List[int], List[int]]:
         """Perform testing iterations"""
         logger.info(f"Testing query")
         times = []
         docs_examined = []
         keys_examined = []
+        docs_returned = []
 
         for i in range(iterations):
             start_time = time.perf_counter()
             coll = self.connection.client[database][collection]
 
-            list(coll.find(query).hint(index_hint))
+            cursor = coll.find(query).hint(index_hint)
+            result_count = len(list(cursor))
+            docs_returned.append(result_count)
 
             elapsed = time.perf_counter() - start_time
             times.append(elapsed)
@@ -139,7 +143,7 @@ class IndexPerformanceTester:
                     keys_examined,
                 )
 
-        return times, docs_examined, keys_examined
+        return times, docs_examined, keys_examined, docs_returned
 
     def _collect_execution_stats(
         self,
@@ -167,6 +171,7 @@ class IndexPerformanceTester:
         times: List[float],
         docs_examined: List[int],
         keys_examined: List[int],
+        docs_returned: List[int],
     ) -> TestResult:
         """Calculate statistical results"""
         logger.info(f"Calculating results")
@@ -193,4 +198,5 @@ class IndexPerformanceTester:
             ),
             avg_docs_examined=statistics.mean(docs_examined) if docs_examined else 0.0,
             avg_keys_examined=statistics.mean(keys_examined) if keys_examined else 0.0,
+            avg_docs_returned=statistics.mean(docs_returned) if docs_returned else 0.0,
         )

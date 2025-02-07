@@ -14,9 +14,17 @@ from .tester import IndexPerformanceTester
 from .formatters import TableFormatter, CSVFormatter, JSONFormatter
 
 def json_object_hook(d):
-    for key, value in d.items():
+    def adjsut_object_id(value):
         if isinstance(value, str) and value.startswith("ObjectId("):
-            d[key] = ObjectId(value[value.index("(") + 2 : value.index(")") - 1])
+            return ObjectId(value[value.index("(") + 2 : value.index(")") - 1])
+        elif isinstance(value, dict):
+            return {key: adjsut_object_id(val) for key, val in value.items()}
+        elif isinstance(value, list):
+            return [adjsut_object_id(val) for val in value]
+        else:
+            return value
+    for key, value in d.items():
+        d[key] = adjsut_object_id(value)
     return d
 
 def load_test_queries(config_path: str) -> List[TestQuery]:

@@ -45,19 +45,34 @@ The test configuration should be provided in a JSON file format. Here is an exam
 
 ```json
 [
-  {
-    "name": "test_query_1",
-    "database": "your_database",
-    "collection": "your_collection",
-    "query": {
-      "field1": "value1",
-      "field2": {"$gt": 100}
-    },
-    "hints": [
-      {"field1": 1},
-      {"field1": 1, "field2": 1}
-    ]
-  }
+    {
+        "name": "test_query_1",
+        "database": "my_database",
+        "collection": "users",
+        "query": {
+            "filter": {
+                "name": "John Doe",
+                "age": {
+                    "$gte": 30
+                }
+            },
+            "sort": {
+                "age": -1
+            },
+            "project": {
+                "name": 1,
+                "age": 1
+            }
+        },
+        "hints": [
+            {
+                "name": 1
+            },
+            {
+                "age": 1
+            }
+        ]
+    }
 ]
 ```
 

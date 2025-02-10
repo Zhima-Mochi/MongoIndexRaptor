@@ -102,7 +102,7 @@ class IndexPerformanceTester:
             if (i + 1) % max(1, warmup_iterations // 5) == 0:
                 logger.debug(f"Warmup progress: {i+1}/{warmup_iterations}")
             coll = self.connection.client[database][collection]
-            list(coll.find(query).hint(index_hint).limit(0))
+            list(self._build_query_cursor(coll, query, index_hint).limit(0))
 
     def _perform_testing(
         self,
@@ -124,7 +124,7 @@ class IndexPerformanceTester:
             start_time = time.perf_counter()
             coll = self.connection.client[database][collection]
 
-            cursor = coll.find(query).hint(index_hint)
+            cursor = self._build_query_cursor(coll, query, index_hint)
             result_count = len(list(cursor))
             docs_returned.append(result_count)
 
@@ -156,7 +156,7 @@ class IndexPerformanceTester:
     ):
         """Collect execution statistics"""
         coll = self.connection.client[database][collection]
-        explain_result = coll.find(query).hint(index_hint).explain()
+        explain_result = self._build_query_cursor(coll, query, index_hint).explain()
         stats = explain_result.get("executionStats", {})
         docs_examined.append(stats.get("totalDocsExamined", 0))
         keys_examined.append(stats.get("totalKeysExamined", 0))
@@ -200,3 +200,15 @@ class IndexPerformanceTester:
             avg_keys_examined=statistics.mean(keys_examined) if keys_examined else 0.0,
             avg_docs_returned=statistics.mean(docs_returned) if docs_returned else 0.0,
         )
+    
+    def _build_query_cursor(self, coll, query, index_hint):
+        command = coll.find(query['filter']) if query.get('project') is None else coll.find(query['filter'], query['project'])
+        if query.get('sort'):
+            command = command.sort(query['sort'])
+        if query.get('skip'):
+            command = command.skip(query['skip'])
+        if query.get('limit'):
+            command = command.limit(query['limit'])
+        if index_hint:
+            command = command.hint(index_hint)
+        return command

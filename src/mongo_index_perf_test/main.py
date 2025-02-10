@@ -45,6 +45,8 @@ def save_results(
     name = query_name
     if name == "":
         name = "index_performance_test"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     output_filename = f"{name}_{timestamp}.log"
     output_filename = os.path.join(output_dir, output_filename)
 

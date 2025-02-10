@@ -4,7 +4,7 @@ from typing import Dict, List, Any, Optional
 @dataclass
 class TestResult:
     """Data class for test results"""
-    query: Dict[str, Any]
+    query: Dict[str, Dict[str, Any]]
     hint: Dict[str, int]
     iteration: int
     warmup_iteration: int
@@ -29,7 +29,7 @@ class TestResult:
 class TestQuery:
     """Data class for test query configuration"""
     name: str
-    query: Dict[str, Any]
+    query: Dict[str, Dict[str, Any]]
     hints: List[Dict[str, int]]
     database: str
     collection: str

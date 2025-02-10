@@ -4,9 +4,18 @@
         "database": "my_database",
         "collection": "users",
         "query": {
-            "name": "John Doe",
-            "age": {
-                "$gte": 30
+            "filter": {
+                "name": "John Doe",
+                "age": {
+                    "$gte": 30
+                }
+            },
+            "sort": {
+                "age": -1
+            },
+            "project": {
+                "name": 1,
+                "age": 1
             }
         },
         "hints": [
